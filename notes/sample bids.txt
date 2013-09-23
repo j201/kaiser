@@ -1,0 +1,46 @@
+#{{:value 12, :suit :clubs} {:value 14, :suit :clubs} {:value 13, :suit :hearts} {:value 8, :suit :clubs} {:value 9, :suit :hearts} {:value 9, :suit :spades} {:value 11, :suit :hearts} {:suit :spades, :value 3}}
+
+K,J,9 hearts
+A,Q,8 clubs
+no diamonds
+9,3 spades
+
+(4 5 3 4 2)
+[:hearts :clubs :diamonds :spades :no-trump]
+
+#{{:value 13, :suit :diamonds} {:value 14, :suit :clubs} {:value 12, :suit :spades} {:value 14, :suit :spades} {:value 7, :suit :diamonds} {:value 8, :suit :hearts} {:value 9, :suit :spades} {:suit :spades, :value 3}}
+8 hearts
+A clubs
+K,7 diamonds
+A,Q,9,3 spades
+
+(4 3 4 6 2)
+
+#{{:value 12, :suit :clubs} {:value 9, :suit :diamonds} {:value 13, :suit :hearts} {:value 8, :suit :hearts} {:value 11, :suit :hearts} {:value 10, :suit :hearts} {:value 11, :suit :spades} {:value 10, :suit :spades}}
+K,J,10,8 hearts
+Q clubs
+9 diamonds
+J,10 spades
+
+(4 2 2 3 2)
+
+#{{:value 12, :suit :diamonds} {:value 14, :suit :diamonds} {:value 14, :suit :clubs} {:value 8, :suit :clubs} {:value 10, :suit :diamonds} {:value 14, :suit :hearts} {:value 14, :suit :spades} {:value 7, :suit :diamonds}}
+A hearts
+A,8 clubs
+A,Q,10,7 diamonds
+A spades
+
+(6 6 8 5 5)
+
+#{{:value 14 :suit :hearts} {:value 13 :suit :hearts} {:value 12 :suit :hearts} {:value 11 :suit :hearts} {:value 10 :suit :hearts} {:value 9 :suit :hearts} {:value 8 :suit :hearts} {:value 5 :suit :hearts}}
+all hearts
+
+(10 6 6 6 9)
+
+#{{:value 9, :suit :clubs} {:value 10, :suit :diamonds} {:value 12, :suit :spades} {:value 14, :suit :hearts} {:value 14, :suit :spades} {:value 8, :suit :hearts} {:value 7, :suit :clubs} {:value 8, :suit :spades}}
+A,8 hearts
+9,7 clubs
+10 diamonds
+A,Q,8 spades
+
+(5 5 4 5 4)
