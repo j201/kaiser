@@ -23,7 +23,7 @@
            :name "New Game"
            :key "ctrl N"
            :tip "Starts a new game."
-           :handler #(do (impl/new-game!) (cvs/canvas-repaint!)))
+           :handler (fn [] nil));#(do (impl/new-game!) (cvs/canvas-repaint!)))
          (action
            :name "Save Game"
            :key "ctrl S"
@@ -79,8 +79,7 @@
 (make-frame)
 (impl/new-game!)
 (impl/new-round!)
-#_(cvs/canvas-repaint!)
-(pnl/hand-display! pnl/panel (first (:hands @impl/round)))
+(pnl/hand-display! pnl/panel (first (:hands @impl/round)) prn)
 (repaint! pnl/panel)
 
 (print (config pnl/panel :items))

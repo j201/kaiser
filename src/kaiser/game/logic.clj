@@ -1,3 +1,6 @@
+; This namespace has been pimped out with core.typed, but I don't think it's stable or well-documented enough to use elsewhere yet.
+; For example, it throws a Type Error if you try to use a vector as a function.
+
 ; Bid data structure:
 ; {:trump :no-trump :points 7 :bidder 2} => A bid of 7 no trump by your partner
 ; {:pass true :bidder 3} => A pass by the person to your right
@@ -16,8 +19,26 @@
 ; Score data structure
 ; [30 19]
 
-(ns kaiser.game.logic)
+(ns kaiser.game.logic
+  (:use clojure.core.typed))
 
+(ann ^:no-check clojure.core/mod (Fn [AnyInteger AnyInteger -> AnyInteger]
+                                     [Number Number -> Number]))
+
+(def-alias Player AnyInteger) 
+(def-alias Suit (U (Value :spades) (Value :diamonds) (Value :clubs) (Value :hearts))); There's probably a better way of doing this, but I haven't found it
+(def-alias Trump (U Suit (Value :no-trump)))
+(def-alias Card '{:suit Suit :value AnyInteger})
+(def-alias Hand (Set Card))
+(def-alias Turn (U nil
+                   '{:cards (Vec Card) :leader AnyInteger}))
+(def-alias CompleteTurn '{:cards '[Card Card Card Card] :leader AnyInteger})
+(def-alias Bid (U '{:trump Trump :points AnyInteger :bidder Player}
+                  '{:pass true :bidder Player}))
+(def-alias TopBid '{:trump Trump :points AnyInteger :bidder Player})
+(def-alias Score (Vec AnyInteger))
+
+(ann card-greater? [Card Card Trump Suit -> Boolean])
 (defn card-greater? 
   "Checks if a card is higher in rank than another in the current turn"
   [card1 card2 trump led-suit]
@@ -33,22 +54,24 @@
       (= led-suit (:suit card2)) false
       :else higher)))
 
+(ann turn-winner [CompleteTurn Trump -> Player])
 (defn turn-winner 
   "Determines which player won a hand"
   [turn trump]
   (mod (+ (:leader turn)
           (:top-index
-            (reduce (fn [top card]
+            (reduce (fn> [top :- '{:card Card :index AnyInteger :top-index AnyInteger}, card :- Card]
                       (if (card-greater? card
                                          (:card top)
                                          trump
                                          (:suit (first (:cards turn))))
                         {:card card :top-index (:index top) :index (inc (:index top))}
                         (assoc top :index (inc (:index top)))))
-                    {:card {:suit nil :value 0} :index 0}
+                    {:card {:suit :spades :value 0} :index 0 :top-index 0}
                     (:cards turn))))
        4))
 
+(ann points [Turn -> Number])
 (defn points 
   "Calculates the point value of a turn"
   [turn]
@@ -60,17 +83,18 @@
        (if has-three -3 0)
        (if has-five 5 0))))
 
+(ann score-traditional [Score TopBid -> Score])
 (defn- score-traditional
   "Scores with the traditional method: bidding team doesn't get their points added on if they lose and successful no-trump bids are worth the double of the points scored"
   [points bid]
-  (let [bid-team (mod (:bidder bid) 2)
+  (let [bid-team (if (even? (:bidder bid)) 0 1) ; Yes, this could be a mod, but that doesn't work with core.typed
         no-trump (= :no-trump (:trump bid))]
-    (if (>= (points bid-team) (:points bid))
+    (if (>= (nth points bid-team) (:points bid))
       (if no-trump
-        (assoc points bid-team (* 2 (points bid-team)))
+        (assoc points bid-team (* 2 (nth points bid-team)))
         points)
-      (assoc points bid-team ((if no-trump #(* -2 %) -)
-                              (:value bid))))))
+      (assoc points bid-team (* (if no-trump 2 -1)
+                                (:points bid))))))
 
 (defn- score-modified
   "Scores with the modified method: bidding team gets their points added on even if they lose and successful no-trump bids are worth the double of the bid plus the points scored"

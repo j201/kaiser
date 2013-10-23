@@ -32,7 +32,16 @@
            :items (conj (config panel :items)
                         item)))
 
-(defn hand-display! [panel hand]
+(defn- draw-image! [panel image location]
+  (let [image-label (doto
+                      (label
+                        :icon image
+                        :location location)
+                      (config! :bounds :preferred))]
+    (do (add-to-panel! panel image-label)
+        image-label)))
+
+(defn hand-display! [panel hand listener] ; listener is called with the card as a parameter
   (let [height (.getHeight panel)
         y (- height 100)
         width (.getWidth panel)
@@ -41,14 +50,27 @@
                    2)
         sorted-hand (sort-hand hand)]
     (doseq [i (range (count sorted-hand))]
-      (add-to-panel! panel (doto 
-                             (label
-                               :icon (card-image (nth sorted-hand i))
-                               :location [(+ start-x (* i card-width)), y]
-                               :class :card)
-                             (config! :bounds :preferred)
-                             (listen :mouse-clicked (fn [e] (println e))
-                                     )))))) ; NECESSARY FOR DISPLAYING THE LABEL
+      (let [card (nth sorted-hand i)]
+        (do (draw-image! panel (card-image card) [(+ start-x (* i card-width)), y])
+            (listen :mouse-clicked (fn [e] (listener card))))))))
+
+(defn turn-display! [panel turn]
+  (let [{cards :cards leader :leader} turn
+        height (.getHeight panel)
+        width (.getWidth panel)
+        x-padding 20
+        y-padding 20
+        positions [[(/ (- width card-width) 2)
+                    (+ y-padding (/ height 2))]
+                   [(+ x-padding (/ width 2))
+                    (/ (- height card-height) 2)]
+                   [(/ (- width card-width) 2)
+                    (- (/ height 2) y-padding)]
+                   [(- (/ width 2) x-padding)
+                    (/ (- height card-height) 2)]]]
+    (doseq [i (range (count cards))]
+      (let [index (mod (+ i leader) 4)]
+        (draw-image! panel (card-image (cards index)) (positions index))))))
 
 (def panel (xyz-panel :background "#060"))
 
